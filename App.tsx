@@ -1,14 +1,13 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Heart, 
   MapPin, 
-  MessageCircle, 
   User as UserIcon, 
   Droplets, 
   Calendar, 
   Clock, 
   ChevronRight, 
-  Send,
   Menu,
   X,
   Award,
@@ -28,10 +27,8 @@ import { StatCard } from './components/StatCard';
 import { AuthScreen } from './components/AuthScreen';
 import { AdminDashboard } from './components/AdminDashboard';
 import { HospitalDashboard } from './components/HospitalDashboard';
-import { FloatingChat } from './components/FloatingChat';
-import { sendMessageToAI, initializeChat } from './services/geminiService';
 
-// Mock Data for Initial State - Updated to Nanjing Locations and Default Password '1234'
+// Mock Data for Initial State - Nanjing Locations
 const INITIAL_USERS: User[] = [
   { 
     id: '1', name: 'Alex Johnson', email: 'alex@test.com', password: '1234', 
@@ -105,12 +102,6 @@ const App: React.FC = () => {
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
   };
-  
-  // Chat State
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [inputText, setInputText] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Save users to Local Storage whenever they change
   useEffect(() => {
@@ -134,17 +125,8 @@ const App: React.FC = () => {
     // Reset view when user changes
     if (currentUser) {
         setCurrentView(getDefaultView(currentUser.role));
-
-        initializeChat();
-        setMessages([
-            { id: '1', role: 'model', text: `Hi ${currentUser.name.split(' ')[0]}! I'm LifeLink AI. Ask me about donation eligibility, app features, or health tips!`, timestamp: new Date() }
-        ]);
     }
   }, [currentUser]);
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
 
   const handleLogin = (user: User) => {
     setCurrentUser(user);
@@ -156,35 +138,6 @@ const App: React.FC = () => {
 
   const handleLogout = () => {
     setCurrentUser(null);
-    setMessages([]);
-  };
-
-  const handleChatSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inputText.trim()) return;
-
-    const userMsg: ChatMessage = {
-      id: Date.now().toString(),
-      role: 'user',
-      text: inputText,
-      timestamp: new Date()
-    };
-
-    setMessages(prev => [...prev, userMsg]);
-    setInputText('');
-    setIsTyping(true);
-
-    const responseText = await sendMessageToAI(userMsg.text);
-
-    const aiMsg: ChatMessage = {
-      id: (Date.now() + 1).toString(),
-      role: 'model',
-      text: responseText,
-      timestamp: new Date()
-    };
-
-    setMessages(prev => [...prev, aiMsg]);
-    setIsTyping(false);
   };
 
   const NavItem = ({ view, icon: Icon, label }: { view: AppView; icon: any; label: string }) => (
@@ -212,7 +165,6 @@ const App: React.FC = () => {
         return [
           { view: AppView.DASHBOARD, icon: LayoutDashboard, label: 'System Overview' },
           { view: AppView.USER_MANAGEMENT, icon: Users, label: 'Manage Users' },
-          { view: AppView.ASSISTANT, icon: MessageCircle, label: 'AI Assistant' },
         ];
       case 'HOSPITAL':
         return [
@@ -224,7 +176,6 @@ const App: React.FC = () => {
         return [
           { view: AppView.DASHBOARD, icon: Activity, label: 'Dashboard' },
           { view: AppView.DONATE, icon: MapPin, label: 'Find Center' },
-          { view: AppView.ASSISTANT, icon: MessageCircle, label: 'AI Assistant' },
           { view: AppView.PROFILE, icon: UserIcon, label: 'Profile' },
         ];
     }
@@ -232,7 +183,6 @@ const App: React.FC = () => {
 
   const renderContent = () => {
     // Shared Views
-    if (currentView === AppView.ASSISTANT) return renderAssistant();
     if (currentView === AppView.PROFILE) return renderProfile();
 
     // Admin Views
@@ -430,84 +380,8 @@ const App: React.FC = () => {
         />
         <div className="absolute top-6 right-6 bg-white/90 dark:bg-gray-800/90 backdrop-blur p-4 rounded-xl shadow-lg max-w-xs border border-white/20">
             <h4 className="font-bold text-gray-900 dark:text-white text-sm">Map View</h4>
-            <p className="text-xs text-gray-500 dark:text-gray-300 mt-1">Interactive map integration would go here using Google Maps Grounding.</p>
+            <p className="text-xs text-gray-500 dark:text-gray-300 mt-1">Interactive map integration for Nanjing Donation Centers.</p>
         </div>
-      </div>
-    </div>
-  );
-
-  const renderAssistant = () => (
-    <div className="h-[calc(100vh-140px)] flex flex-col bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden animate-fade-in">
-      {/* Chat Header */}
-      <div className="bg-gradient-to-r from-gray-900 to-gray-800 p-4 flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-            <div className="p-2 bg-white/10 rounded-full">
-                <MessageCircle className="h-6 w-6 text-white" />
-            </div>
-            <div>
-                <h2 className="text-white font-bold">LifeLink Assistant</h2>
-                <p className="text-gray-300 text-xs flex items-center">
-                    <span className="w-2 h-2 bg-green-500 rounded-full mr-1.5 animate-pulse"></span>
-                    Online • Powered by Gemini
-                </p>
-            </div>
-        </div>
-      </div>
-
-      {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-900/50">
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-          >
-            <div
-              className={`max-w-[80%] lg:max-w-[70%] rounded-2xl px-4 py-3 shadow-sm text-sm leading-relaxed ${
-                msg.role === 'user'
-                  ? 'bg-red-600 text-white rounded-br-none'
-                  : 'bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-bl-none border border-gray-100 dark:border-gray-600'
-              }`}
-            >
-              {msg.text.split('\n').map((line, i) => (
-                  <p key={i} className={i > 0 ? 'mt-2' : ''}>{line}</p>
-              ))}
-              <div className={`text-[10px] mt-2 text-right ${msg.role === 'user' ? 'text-red-100' : 'text-gray-400 dark:text-gray-300'}`}>
-                {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-              </div>
-            </div>
-          </div>
-        ))}
-        {isTyping && (
-           <div className="flex justify-start">
-             <div className="bg-white dark:bg-gray-700 rounded-2xl rounded-bl-none border border-gray-100 dark:border-gray-600 px-4 py-3 shadow-sm">
-                <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-75"></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-150"></div>
-                </div>
-             </div>
-           </div>
-        )}
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* Input Area */}
-      <div className="p-4 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700">
-        <form onSubmit={handleChatSubmit} className="flex gap-2">
-          <input
-            type="text"
-            value={inputText}
-            onChange={(e) => setInputText(e.target.value)}
-            placeholder="Ask about eligibility, health tips, or donor rewards..."
-            className="flex-1 px-4 py-3 bg-gray-50 dark:bg-gray-700 dark:text-white border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all text-sm dark:placeholder-gray-400"
-          />
-          <Button type="submit" disabled={!inputText.trim() || isTyping} className="w-12 h-12 !px-0 rounded-xl">
-            <Send className="h-5 w-5" />
-          </Button>
-        </form>
-        <p className="text-center text-[10px] text-gray-400 mt-2">
-            AI can make mistakes. Please consult with a medical professional.
-        </p>
       </div>
     </div>
   );
@@ -546,13 +420,10 @@ const App: React.FC = () => {
     );
   };
 
-  // If not logged in, show Auth Screen BUT WRAPPED to include Floating Chat
+  // If not logged in, show Auth Screen
   if (!currentUser) {
     return (
-        <>
-            <AuthScreen users={users} onLogin={handleLogin} onRegister={handleRegister} />
-            <FloatingChat />
-        </>
+        <AuthScreen users={users} onLogin={handleLogin} onRegister={handleRegister} />
     );
   }
 
