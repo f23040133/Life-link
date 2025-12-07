@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Heart, 
@@ -19,7 +18,9 @@ import {
   Search,
   LayoutDashboard,
   Building2,
-  ArrowLeft
+  ArrowLeft,
+  Moon,
+  Sun
 } from 'lucide-react';
 import { AppView, User, Center, ChatMessage, UserRole } from './types';
 import { Button } from './components/Button';
@@ -27,6 +28,7 @@ import { StatCard } from './components/StatCard';
 import { AuthScreen } from './components/AuthScreen';
 import { AdminDashboard } from './components/AdminDashboard';
 import { HospitalDashboard } from './components/HospitalDashboard';
+import { FloatingChat } from './components/FloatingChat';
 import { sendMessageToAI, initializeChat } from './services/geminiService';
 
 // Mock Data for Initial State - Updated to Nanjing Locations and Default Password '1234'
@@ -80,6 +82,30 @@ const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<AppView>(AppView.DASHBOARD);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
+  // Dark Mode State
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('theme') === 'dark' || 
+        (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    }
+    return false;
+  });
+
+  // Apply dark mode class to html element
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDarkMode]);
+
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
+  };
+  
   // Chat State
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState('');
@@ -111,7 +137,7 @@ const App: React.FC = () => {
 
         initializeChat();
         setMessages([
-            { id: '1', role: 'model', text: `Hi ${currentUser.name.split(' ')[0]}! I'm LifeLink AI. Ask me about donation eligibility or health tips!`, timestamp: new Date() }
+            { id: '1', role: 'model', text: `Hi ${currentUser.name.split(' ')[0]}! I'm LifeLink AI. Ask me about donation eligibility, app features, or health tips!`, timestamp: new Date() }
         ]);
     }
   }, [currentUser]);
@@ -169,11 +195,11 @@ const App: React.FC = () => {
       }}
       className={`flex items-center w-full px-4 py-3 text-sm font-medium transition-colors duration-200 rounded-xl ${
         currentView === view
-          ? 'bg-red-50 text-red-700'
-          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+          ? 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400'
+          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200'
       }`}
     >
-      <Icon className={`mr-3 h-5 w-5 ${currentView === view ? 'text-red-600' : 'text-gray-400'}`} />
+      <Icon className={`mr-3 h-5 w-5 ${currentView === view ? 'text-red-600 dark:text-red-400' : 'text-gray-400 dark:text-gray-500'}`} />
       {label}
     </button>
   );
@@ -222,7 +248,7 @@ const App: React.FC = () => {
             return <HospitalDashboard users={users} />;
         }
         if (currentView === AppView.DASHBOARD) {
-            return <div className="p-8 text-center text-gray-500">Hospital Request Dashboard (Under Construction)</div>;
+            return <div className="p-8 text-center text-gray-500 dark:text-gray-400">Hospital Request Dashboard (Under Construction)</div>;
         }
     }
 
@@ -276,26 +302,26 @@ const App: React.FC = () => {
         {/* Recent Activity & Map Teaser */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Activity Feed */}
-            <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
             <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-bold text-gray-900">Recent Activity</h3>
-                <button className="text-sm text-red-600 font-medium hover:text-red-700">View All</button>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white">Recent Activity</h3>
+                <button className="text-sm text-red-600 dark:text-red-400 font-medium hover:text-red-700">View All</button>
             </div>
             {currentUser.totalDonations > 0 ? (
                  <div className="space-y-6">
                  {[1, 2, 3].map((item) => (
-                   <div key={item} className="flex items-start pb-6 border-b border-gray-50 last:border-0 last:pb-0">
-                     <div className="flex-shrink-0 bg-red-50 rounded-full p-2.5">
-                       <Droplets className="h-5 w-5 text-red-600" />
+                   <div key={item} className="flex items-start pb-6 border-b border-gray-50 dark:border-gray-700 last:border-0 last:pb-0">
+                     <div className="flex-shrink-0 bg-red-50 dark:bg-red-900/30 rounded-full p-2.5">
+                       <Droplets className="h-5 w-5 text-red-600 dark:text-red-400" />
                      </div>
                      <div className="ml-4 flex-1">
                        <div className="flex justify-between">
-                         <p className="text-sm font-semibold text-gray-900">Whole Blood Donation</p>
+                         <p className="text-sm font-semibold text-gray-900 dark:text-white">Whole Blood Donation</p>
                          <span className="text-xs text-gray-400">2 months ago</span>
                        </div>
-                       <p className="text-sm text-gray-500 mt-1">Nanjing Drum Tower Hospital • 450ml</p>
+                       <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Nanjing Drum Tower Hospital • 450ml</p>
                        <div className="mt-2 flex items-center space-x-2">
-                         <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                         <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400">
                            Completed
                          </span>
                          <span className="text-xs text-gray-400">+300 Points</span>
@@ -314,20 +340,20 @@ const App: React.FC = () => {
             </div>
 
             {/* Quick Actions */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 flex flex-col justify-between">
             <div>
-                <h3 className="text-lg font-bold text-gray-900 mb-4">Urgent Needs Nearby</h3>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Urgent Needs Nearby</h3>
                 <div className="space-y-4">
                 {MOCK_CENTERS.slice(0, 2).map((center) => (
-                    <div key={center.id} className="p-4 rounded-xl bg-gray-50 border border-gray-100 group hover:border-red-200 transition-colors cursor-pointer">
+                    <div key={center.id} className="p-4 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-100 dark:border-gray-600 group hover:border-red-200 dark:hover:border-red-800 transition-colors cursor-pointer">
                     <div className="flex justify-between items-start">
                         <div>
-                        <h4 className="font-semibold text-gray-900 group-hover:text-red-600 transition-colors">{center.name}</h4>
-                        <p className="text-xs text-gray-500 mt-1 flex items-center">
+                        <h4 className="font-semibold text-gray-900 dark:text-white group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">{center.name}</h4>
+                        <p className="text-xs text-gray-500 dark:text-gray-300 mt-1 flex items-center">
                             <MapPin className="h-3 w-3 mr-1" /> {center.distance}
                         </p>
                         </div>
-                        <span className="px-2 py-1 bg-red-100 text-red-700 text-xs font-bold rounded-md">Urgent A+</span>
+                        <span className="px-2 py-1 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 text-xs font-bold rounded-md">Urgent A+</span>
                     </div>
                     </div>
                 ))}
@@ -350,30 +376,30 @@ const App: React.FC = () => {
   const renderDonate = () => (
     <div className="h-[calc(100vh-140px)] flex flex-col lg:flex-row gap-6 animate-fade-in">
       {/* List View */}
-      <div className="lg:w-1/3 bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col overflow-hidden">
-        <div className="p-6 border-b border-gray-100">
-          <h2 className="text-xl font-bold text-gray-900">Donation Centers</h2>
-          <p className="text-sm text-gray-500 mt-1">Found 3 locations near Nanjing</p>
+      <div className="lg:w-1/3 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col overflow-hidden">
+        <div className="p-6 border-b border-gray-100 dark:border-gray-700">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white">Donation Centers</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Found 3 locations near Nanjing</p>
           
           <div className="mt-4 relative">
             <input 
               type="text" 
               placeholder="Search area in Nanjing..." 
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none text-sm"
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none text-sm bg-white dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
             />
-            <MapPin className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+            <MapPin className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-500" />
           </div>
         </div>
         
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {MOCK_CENTERS.map((center) => (
-            <div key={center.id} className="bg-white p-4 rounded-xl border border-gray-100 hover:shadow-md hover:border-red-200 transition-all cursor-pointer group">
+            <div key={center.id} className="bg-white dark:bg-gray-700 p-4 rounded-xl border border-gray-100 dark:border-gray-600 hover:shadow-md hover:border-red-200 dark:hover:border-red-500/50 transition-all cursor-pointer group">
               <div className="flex justify-between items-start">
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 group-hover:text-red-600">{center.name}</h3>
-                  <p className="text-sm text-gray-500 mt-1">{center.address}</p>
-                  <div className="flex items-center mt-3 text-xs text-gray-500 space-x-3">
-                    <span className="flex items-center text-green-600 bg-green-50 px-2 py-1 rounded-md">
+                  <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-red-600 dark:group-hover:text-red-400">{center.name}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-300 mt-1">{center.address}</p>
+                  <div className="flex items-center mt-3 text-xs text-gray-500 dark:text-gray-400 space-x-3">
+                    <span className="flex items-center text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/30 px-2 py-1 rounded-md">
                       <Clock className="h-3 w-3 mr-1" /> Open until {center.openUntil}
                     </span>
                     <span className="flex items-center">
@@ -382,7 +408,7 @@ const App: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex flex-col items-end space-y-2">
-                    <span className="text-xs font-bold bg-gray-100 text-gray-600 px-2 py-1 rounded">
+                    <span className="text-xs font-bold bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-200 px-2 py-1 rounded">
                         ★ {center.rating}
                     </span>
                 </div>
@@ -396,22 +422,22 @@ const App: React.FC = () => {
       </div>
 
       {/* Map View Placeholder */}
-      <div className="flex-1 bg-gray-100 rounded-2xl overflow-hidden relative shadow-inner">
+      <div className="flex-1 bg-gray-100 dark:bg-gray-900 rounded-2xl overflow-hidden relative shadow-inner">
         <img 
             src="https://picsum.photos/seed/map/1200/800" 
             alt="Map" 
             className="w-full h-full object-cover opacity-60 grayscale hover:grayscale-0 transition-all duration-700"
         />
-        <div className="absolute top-6 right-6 bg-white/90 backdrop-blur p-4 rounded-xl shadow-lg max-w-xs">
-            <h4 className="font-bold text-gray-900 text-sm">Map View</h4>
-            <p className="text-xs text-gray-500 mt-1">Interactive map integration would go here using Google Maps Grounding.</p>
+        <div className="absolute top-6 right-6 bg-white/90 dark:bg-gray-800/90 backdrop-blur p-4 rounded-xl shadow-lg max-w-xs border border-white/20">
+            <h4 className="font-bold text-gray-900 dark:text-white text-sm">Map View</h4>
+            <p className="text-xs text-gray-500 dark:text-gray-300 mt-1">Interactive map integration would go here using Google Maps Grounding.</p>
         </div>
       </div>
     </div>
   );
 
   const renderAssistant = () => (
-    <div className="h-[calc(100vh-140px)] flex flex-col bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden animate-fade-in">
+    <div className="h-[calc(100vh-140px)] flex flex-col bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden animate-fade-in">
       {/* Chat Header */}
       <div className="bg-gradient-to-r from-gray-900 to-gray-800 p-4 flex items-center justify-between">
         <div className="flex items-center space-x-3">
@@ -429,7 +455,7 @@ const App: React.FC = () => {
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-900/50">
         {messages.map((msg) => (
           <div
             key={msg.id}
@@ -439,13 +465,13 @@ const App: React.FC = () => {
               className={`max-w-[80%] lg:max-w-[70%] rounded-2xl px-4 py-3 shadow-sm text-sm leading-relaxed ${
                 msg.role === 'user'
                   ? 'bg-red-600 text-white rounded-br-none'
-                  : 'bg-white text-gray-800 rounded-bl-none border border-gray-100'
+                  : 'bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-bl-none border border-gray-100 dark:border-gray-600'
               }`}
             >
               {msg.text.split('\n').map((line, i) => (
                   <p key={i} className={i > 0 ? 'mt-2' : ''}>{line}</p>
               ))}
-              <div className={`text-[10px] mt-2 text-right ${msg.role === 'user' ? 'text-red-100' : 'text-gray-400'}`}>
+              <div className={`text-[10px] mt-2 text-right ${msg.role === 'user' ? 'text-red-100' : 'text-gray-400 dark:text-gray-300'}`}>
                 {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </div>
             </div>
@@ -453,7 +479,7 @@ const App: React.FC = () => {
         ))}
         {isTyping && (
            <div className="flex justify-start">
-             <div className="bg-white rounded-2xl rounded-bl-none border border-gray-100 px-4 py-3 shadow-sm">
+             <div className="bg-white dark:bg-gray-700 rounded-2xl rounded-bl-none border border-gray-100 dark:border-gray-600 px-4 py-3 shadow-sm">
                 <div className="flex space-x-1">
                     <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
                     <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-75"></div>
@@ -466,14 +492,14 @@ const App: React.FC = () => {
       </div>
 
       {/* Input Area */}
-      <div className="p-4 bg-white border-t border-gray-100">
+      <div className="p-4 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700">
         <form onSubmit={handleChatSubmit} className="flex gap-2">
           <input
             type="text"
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             placeholder="Ask about eligibility, health tips, or donor rewards..."
-            className="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all text-sm"
+            className="flex-1 px-4 py-3 bg-gray-50 dark:bg-gray-700 dark:text-white border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all text-sm dark:placeholder-gray-400"
           />
           <Button type="submit" disabled={!inputText.trim() || isTyping} className="w-12 h-12 !px-0 rounded-xl">
             <Send className="h-5 w-5" />
@@ -489,29 +515,29 @@ const App: React.FC = () => {
   const renderProfile = () => {
     if (!currentUser) return null;
     return (
-        <div className="flex items-center justify-center h-full text-gray-500 animate-fade-in">
-        <div className="text-center bg-white p-12 rounded-3xl shadow-sm border border-gray-100 max-w-md w-full">
-            <div className="w-24 h-24 bg-gray-100 rounded-full mx-auto mb-6 flex items-center justify-center text-2xl font-bold text-gray-400 uppercase">
+        <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400 animate-fade-in">
+        <div className="text-center bg-white dark:bg-gray-800 p-12 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 max-w-md w-full">
+            <div className="w-24 h-24 bg-gray-100 dark:bg-gray-700 rounded-full mx-auto mb-6 flex items-center justify-center text-2xl font-bold text-gray-400 dark:text-gray-500 uppercase">
                     {currentUser.name.charAt(0)}{currentUser.name.split(' ')[1]?.charAt(0)}
             </div>
-            <h2 className="text-2xl font-bold text-gray-900">{currentUser.name}</h2>
-            <p className="text-gray-500 mt-1 mb-8">{currentUser.email || 'user@lifelink.com'}</p>
-            <div className="inline-block bg-gray-100 px-3 py-1 rounded-full text-xs font-bold text-gray-600 mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{currentUser.name}</h2>
+            <p className="text-gray-500 dark:text-gray-400 mt-1 mb-8">{currentUser.email || 'user@lifelink.com'}</p>
+            <div className="inline-block bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full text-xs font-bold text-gray-600 dark:text-gray-300 mb-8">
                 Role: {currentUser.role}
             </div>
             
             <div className="grid grid-cols-2 gap-4 mb-8">
-                    <div className="p-4 bg-gray-50 rounded-2xl">
-                        <div className="text-2xl font-bold text-gray-900">{currentUser.bloodType || '-'}</div>
-                        <div className="text-xs text-gray-500 uppercase tracking-wide">Blood Type</div>
+                    <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-2xl">
+                        <div className="text-2xl font-bold text-gray-900 dark:text-white">{currentUser.bloodType || '-'}</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Blood Type</div>
                     </div>
-                    <div className="p-4 bg-gray-50 rounded-2xl">
-                        <div className="text-2xl font-bold text-gray-900">{currentUser.totalDonations}</div>
-                        <div className="text-xs text-gray-500 uppercase tracking-wide">Donations</div>
+                    <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-2xl">
+                        <div className="text-2xl font-bold text-gray-900 dark:text-white">{currentUser.totalDonations}</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Donations</div>
                     </div>
             </div>
 
-            <Button variant="outline" fullWidth onClick={handleLogout} className="border-red-200 text-red-600 hover:bg-red-50">
+            <Button variant="outline" fullWidth onClick={handleLogout} className="border-red-200 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 dark:border-red-800">
                 <LogOut className="h-4 w-4 mr-2" />
                 Sign Out
             </Button>
@@ -520,9 +546,14 @@ const App: React.FC = () => {
     );
   };
 
-  // If not logged in, show Auth Screen
+  // If not logged in, show Auth Screen BUT WRAPPED to include Floating Chat
   if (!currentUser) {
-    return <AuthScreen users={users} onLogin={handleLogin} onRegister={handleRegister} />;
+    return (
+        <>
+            <AuthScreen users={users} onLogin={handleLogin} onRegister={handleRegister} />
+            <FloatingChat />
+        </>
+    );
   }
 
   // Calculate default view for back button logic
@@ -531,14 +562,14 @@ const App: React.FC = () => {
 
   // Main App Interface
   return (
-    <div className="min-h-screen bg-gray-50 font-sans text-slate-800 flex">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 font-sans text-slate-800 dark:text-gray-200 flex transition-colors duration-200">
       {/* Sidebar Navigation (Desktop) */}
-      <aside className="hidden lg:flex flex-col w-64 bg-white border-r border-gray-200 fixed h-full z-10">
+      <aside className="hidden lg:flex flex-col w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 fixed h-full z-10 transition-colors duration-200">
         <div className="p-6 flex items-center space-x-3">
           <div className="bg-red-600 p-2 rounded-xl">
              <Droplets className="h-6 w-6 text-white" />
           </div>
-          <span className="text-2xl font-bold tracking-tight text-gray-900">LifeLink</span>
+          <span className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">LifeLink</span>
         </div>
         
         <nav className="flex-1 px-4 space-y-2 mt-4">
@@ -548,26 +579,34 @@ const App: React.FC = () => {
         </nav>
 
         {currentUser.role === 'DONOR' && (
-            <div className="p-4 m-4 bg-red-50 rounded-2xl">
+            <div className="p-4 m-4 bg-red-50 dark:bg-red-900/20 rounded-2xl">
                 <div className="flex items-center space-x-3 mb-2">
-                    <Award className="h-5 w-5 text-red-600" />
-                    <span className="font-bold text-red-900 text-sm">Platinum Status</span>
+                    <Award className="h-5 w-5 text-red-600 dark:text-red-400" />
+                    <span className="font-bold text-red-900 dark:text-red-300 text-sm">Platinum Status</span>
                 </div>
-                <div className="w-full bg-red-200 rounded-full h-1.5 mb-2">
-                    <div className="bg-red-600 h-1.5 rounded-full w-[80%]"></div>
+                <div className="w-full bg-red-200 dark:bg-red-800 rounded-full h-1.5 mb-2">
+                    <div className="bg-red-600 dark:bg-red-500 h-1.5 rounded-full w-[80%]"></div>
                 </div>
-                <p className="text-xs text-red-700">80% to next reward tier</p>
+                <p className="text-xs text-red-700 dark:text-red-400">80% to next reward tier</p>
             </div>
         )}
 
-        <div className="p-4 border-t border-gray-100">
-           <div className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors" onClick={() => setCurrentView(AppView.PROFILE)}>
-               <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 font-bold uppercase">
+        <div className="p-4 border-t border-gray-100 dark:border-gray-700 flex flex-col gap-3">
+           <button 
+             onClick={toggleDarkMode}
+             className="flex items-center space-x-3 p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+           >
+              {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              <span className="text-sm font-medium">{isDarkMode ? 'Light Mode' : 'Dark Mode'}</span>
+           </button>
+
+           <div className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded-lg transition-colors" onClick={() => setCurrentView(AppView.PROFILE)}>
+               <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-gray-500 dark:text-gray-300 font-bold uppercase">
                  {currentUser.name.charAt(0)}{currentUser.name.split(' ')[1]?.charAt(0)}
                </div>
                <div className="flex-1 min-w-0">
-                   <p className="text-sm font-medium text-gray-900 truncate">{currentUser.name}</p>
-                   <p className="text-xs text-gray-500 truncate">{currentUser.role}</p>
+                   <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{currentUser.name}</p>
+                   <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{currentUser.role}</p>
                </div>
                <ChevronRight className="h-4 w-4 text-gray-400" />
            </div>
@@ -575,33 +614,41 @@ const App: React.FC = () => {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 lg:ml-64 min-h-screen flex flex-col">
+      <main className="flex-1 lg:ml-64 min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
         {/* Mobile Header */}
-        <header className="bg-white border-b border-gray-200 sticky top-0 z-20 lg:hidden">
+        <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-20 lg:hidden">
           <div className="flex items-center justify-between px-4 py-3">
             <div className="flex items-center space-x-2">
                <div className="bg-red-600 p-1.5 rounded-lg">
                     <Droplets className="h-5 w-5 text-white" />
                 </div>
-                <span className="text-xl font-bold text-gray-900">LifeLink</span>
+                <span className="text-xl font-bold text-gray-900 dark:text-white">LifeLink</span>
             </div>
-            <button 
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg"
-            >
-              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </button>
+            <div className="flex items-center space-x-2">
+                <button 
+                  onClick={toggleDarkMode}
+                  className="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+                >
+                  {isDarkMode ? <Sun className="h-6 w-6" /> : <Moon className="h-6 w-6" />}
+                </button>
+                <button 
+                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                    className="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+                >
+                  {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                </button>
+            </div>
           </div>
           
           {/* Mobile Navigation Dropdown */}
           {mobileMenuOpen && (
-            <div className="absolute top-full left-0 w-full bg-white border-b border-gray-200 shadow-lg px-4 py-4 space-y-2 animate-slide-down">
+            <div className="absolute top-full left-0 w-full bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-lg px-4 py-4 space-y-2 animate-slide-down">
                 {getSidebarItems().map((item) => (
                      <NavItem key={item.label} view={item.view} icon={item.icon} label={item.label} />
                 ))}
                 <button
                     onClick={handleLogout}
-                    className="flex items-center w-full px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 rounded-xl"
+                    className="flex items-center w-full px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl"
                 >
                     <LogOut className="mr-3 h-5 w-5" />
                     Sign Out
@@ -615,9 +662,9 @@ const App: React.FC = () => {
             {showBackButton && (
                 <button 
                     onClick={() => setCurrentView(defaultView)} 
-                    className="group mb-6 flex items-center text-sm font-medium text-gray-500 hover:text-red-600 transition-colors"
+                    className="group mb-6 flex items-center text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                 >
-                    <div className="bg-white border border-gray-200 p-1.5 rounded-lg mr-2 group-hover:border-red-200 transition-colors">
+                    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-1.5 rounded-lg mr-2 group-hover:border-red-200 dark:group-hover:border-red-800 transition-colors">
                         <ArrowLeft className="h-4 w-4" />
                     </div>
                     Back to Dashboard

@@ -97,7 +97,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ users, onLogin, onRegist
   };
 
   return (
-    <div className="min-h-screen w-full flex bg-gray-50">
+    <div className="min-h-screen w-full flex bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       {/* Left Side - Hero / Branding */}
       <div className="hidden lg:flex lg:w-1/2 relative bg-gray-900 overflow-hidden text-white">
         <div className="absolute inset-0 bg-gradient-to-br from-red-600 to-red-900 opacity-90 z-10"></div>
@@ -133,7 +133,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ users, onLogin, onRegist
       </div>
 
       {/* Right Side - Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 animate-fade-in bg-white">
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 animate-fade-in bg-white dark:bg-gray-900">
         <div className="w-full max-w-md space-y-8">
             {/* Back Button for Register Mode */}
             {!isLogin && (
@@ -142,7 +142,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ users, onLogin, onRegist
                         setIsLogin(true);
                         setError('');
                     }}
-                    className="flex items-center text-sm text-gray-500 hover:text-red-600 transition-colors"
+                    className="flex items-center text-sm text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                 >
                     <ArrowLeft className="h-4 w-4 mr-2" />
                     Back to Login
@@ -150,10 +150,10 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ users, onLogin, onRegist
             )}
 
           <div className="text-center lg:text-left">
-            <h2 className="text-3xl font-bold text-gray-900">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
               {isLogin ? 'Welcome back' : 'Join as a Donor'}
             </h2>
-            <p className="mt-2 text-gray-500">
+            <p className="mt-2 text-gray-500 dark:text-gray-400">
               {isLogin 
                 ? 'Enter your credentials to access your dashboard.' 
                 : 'Start your journey as a life saver today.'}
@@ -164,19 +164,19 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ users, onLogin, onRegist
           <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
             <button 
                 onClick={() => handleDemoLogin('DONOR')}
-                className="flex-1 whitespace-nowrap text-xs bg-red-50 hover:bg-red-100 text-red-700 py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 transition-colors border border-red-100"
+                className="flex-1 whitespace-nowrap text-xs bg-red-50 hover:bg-red-100 text-red-700 dark:bg-red-900/20 dark:hover:bg-red-900/30 dark:text-red-400 py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 transition-colors border border-red-100 dark:border-red-900/20"
             >
                 <Heart className="h-3 w-3" /> Donor Demo
             </button>
             <button 
                 onClick={() => handleDemoLogin('ADMIN')}
-                className="flex-1 whitespace-nowrap text-xs bg-gray-50 hover:bg-gray-100 text-gray-700 py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 transition-colors border border-gray-100"
+                className="flex-1 whitespace-nowrap text-xs bg-gray-50 hover:bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 transition-colors border border-gray-100 dark:border-gray-700"
             >
                 <ShieldCheck className="h-3 w-3" /> Admin Demo
             </button>
             <button 
                 onClick={() => handleDemoLogin('HOSPITAL')}
-                className="flex-1 whitespace-nowrap text-xs bg-gray-50 hover:bg-gray-100 text-gray-700 py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 transition-colors border border-gray-100"
+                className="flex-1 whitespace-nowrap text-xs bg-gray-50 hover:bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 transition-colors border border-gray-100 dark:border-gray-700"
             >
                 <Building2 className="h-3 w-3" /> Hospital Demo
             </button>
@@ -195,7 +195,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ users, onLogin, onRegist
                     required
                     value={formData.name}
                     onChange={handleChange}
-                    className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all"
+                    className="block w-full pl-10 pr-3 py-3 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                     placeholder="Full Name"
                   />
                 </div>
@@ -209,7 +209,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ users, onLogin, onRegist
                         name="bloodType"
                         value={formData.bloodType}
                         onChange={handleChange}
-                        className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all bg-white text-gray-600"
+                        className="block w-full pl-10 pr-3 py-3 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300"
                     >
                         <option value="">Type</option>
                         <option value="A+">A+</option>
@@ -228,7 +228,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ users, onLogin, onRegist
                             type="text"
                             value={formData.location}
                             onChange={handleChange}
-                            className="block w-full px-3 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all"
+                            className="block w-full px-3 py-3 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                             placeholder="City"
                         />
                     </div>
@@ -246,7 +246,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ users, onLogin, onRegist
                 required
                 value={formData.email}
                 onChange={handleChange}
-                className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all"
+                className="block w-full pl-10 pr-3 py-3 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                 placeholder="Email address"
               />
             </div>
@@ -262,14 +262,14 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ users, onLogin, onRegist
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all"
+                  className="block w-full pl-10 pr-3 py-3 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                   placeholder="Password"
                 />
               </div>
-              <p className="text-xs text-gray-400 mt-1 ml-1">Default password: 1234</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 ml-1">Default password: 1234</p>
             </div>
             
-            {error && <div className="p-3 rounded-lg bg-red-50 text-red-600 text-sm text-center border border-red-100">{error}</div>}
+            {error && <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-sm text-center border border-red-100 dark:border-red-900/50">{error}</div>}
 
             <Button
               type="submit"
@@ -295,7 +295,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ users, onLogin, onRegist
                 setFormData({ name: '', email: '', password: '1234', bloodType: '', location: '' });
                 setError('');
               }}
-              className="text-red-600 hover:text-red-700 font-semibold text-sm transition-colors"
+              className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 font-semibold text-sm transition-colors"
              >
                {isLogin ? 'Create a donor account' : 'Sign in to existing account'}
              </button>
