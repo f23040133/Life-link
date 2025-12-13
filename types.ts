@@ -24,6 +24,16 @@ export interface Center {
   rating: number;
 }
 
+export interface Doctor {
+  id: string;
+  name: string;
+  specialty: string;
+  hospital: string;
+  rating: number;
+  availability: string;
+  image: string;
+}
+
 export interface ChatMessage {
   id: string;
   role: 'user' | 'model';
@@ -34,6 +44,7 @@ export interface ChatMessage {
 export enum AppView {
   DASHBOARD = 'DASHBOARD',
   DONATE = 'DONATE',
+  APPOINTMENTS = 'APPOINTMENTS', // New view for Doctor Appointments
   ASSISTANT = 'ASSISTANT',
   PROFILE = 'PROFILE',
   // Admin/Hospital Views
